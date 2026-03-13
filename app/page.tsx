@@ -27,10 +27,12 @@ export default function ProductApp() {
   const [isGenerating, setIsGenerating] = useState(false);
   
   const [feedHistory, setFeedHistory] = useState<any[]>([]);
+  const [systemLogs, setSystemLogs] = useState<any[]>([]);
   const apiBase = '/api';
 
   React.useEffect(() => {
     fetchHistory();
+    fetchLogs();
   }, []);
 
   const fetchHistory = async () => {
@@ -42,6 +44,18 @@ export default function ProductApp() {
       }
     } catch (err) {
       console.error("Failed to fetch history", err);
+    }
+  };
+
+  const fetchLogs = async () => {
+    try {
+      const res = await fetch(`${apiBase}/logs`);
+      if (res.ok) {
+        const data = await res.json();
+        setSystemLogs(data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch logs", err);
     }
   };
 
@@ -167,6 +181,7 @@ export default function ProductApp() {
       
       setLiveUrl(data.liveUrl);
       fetchHistory(); // Refresh the list
+      fetchLogs(); // Refresh the logs
     } catch (err: any) {
       alert(`Hata: ${err.message}`);
     } finally {
@@ -374,6 +389,34 @@ export default function ProductApp() {
                   </table>
                 </div>
               )}
+            </div>
+
+            {/* System Logs Section */}
+            <div className="mt-8 bg-gray-900 rounded-xl shadow-lg border border-gray-800 p-6 text-gray-300">
+              <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm3.293 1.293a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L7.586 10 5.293 7.707a1 1 0 010-1.414zM11 12a1 1 0 100 2h3a1 1 0 100-2h-3z" clipRule="evenodd" /></svg>
+                Sistem İşlem Logları (Kalıcı Kayıt)
+              </h2>
+              <div className="bg-black/40 rounded-lg p-4 font-mono text-xs overflow-hidden">
+                {systemLogs.length === 0 ? (
+                  <p className="text-gray-500 italic">Henüz işlem kaydı bulunmuyor.</p>
+                ) : (
+                  <div className="space-y-2 max-h-60 overflow-y-auto custom-scrollbar">
+                    {systemLogs.slice().reverse().map((log: any, i: number) => (
+                      <div key={i} className="border-b border-gray-800 pb-2 last:border-0 hover:bg-white/5 p-1 rounded transition-colors">
+                        <span className="text-blue-400">[{new Date(log.timestamp).toLocaleString('tr-TR')}]</span>{' '}
+                        <span className="text-green-400">SUCCESS:</span>{' '}
+                        <span className="text-gray-100">"{log.customLabelValue}"</span> etiketiyle{' '}
+                        <span className="text-yellow-400">{log.selectedCount}</span> ürünlük link oluşturuldu.{' '}
+                        <div className="mt-1 text-gray-500 truncate">{log.liveUrl}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <p className="text-[10px] text-gray-500 mt-4 italic">
+                * Bu bölüm linklerin oluşturma geçmişini kalıcı olarak tutar.
+              </p>
             </div>
           </div>
         </div>

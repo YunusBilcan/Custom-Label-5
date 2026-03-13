@@ -27,9 +27,27 @@ export async function POST(req: Request) {
     };
     
     await kv.set('all_feeds', existingFeeds);
-
+    
     const protocol = req.headers.get('x-forwarded-proto') || 'http';
     const host = req.headers.get('host');
+
+    // Log the link generation event
+    try {
+      const logEntry = {
+        timestamp: new Date().toISOString(),
+        customLabelValue,
+        selectedCount: selectedIds.length,
+        liveUrl: `${protocol}://${host}/api/liveFeed?id=${id}`
+      };
+      let logs: any = await kv.get('link_generation_logs');
+      if (!Array.isArray(logs)) logs = [];
+      logs.push(logEntry);
+      // Keep only last 100 logs
+      if (logs.length > 100) logs = logs.slice(-100);
+      await kv.set('link_generation_logs', logs);
+    } catch (logErr) {
+      console.error('Failed to log link generation:', logErr);
+    }
     
     return NextResponse.json({
       success: true,
