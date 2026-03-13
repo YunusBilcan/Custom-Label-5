@@ -1,0 +1,8 @@
+{
+  "/_not-found/page": "app/_not-found/page.js",
+  "/api/feeds/route": "app/api/feeds/route.js",
+  "/api/liveFeed/route": "app/api/liveFeed/route.js",
+  "/api/liveFeed/sourceProxy/route": "app/api/liveFeed/sourceProxy/route.js",
+  "/api/deleteFeed/route": "app/api/deleteFeed/route.js",
+  "/page": "app/page.js"
+}
